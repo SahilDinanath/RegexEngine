@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define SPLIT 256
-#define MATCHSTATE 256
+#define MATCHSTATE 257
 typedef struct State {
   int c;
   struct State *out1;
@@ -168,6 +168,7 @@ State *postfixToNfa(char *postfix) {
   patch(e.out, createState(MATCHSTATE, NULL, NULL));
   return e.start;
 }
+
 int main(int argc, char *argv[]) {
   char *postfix = infixToPostfix("a.(b.b)?.a");
   postfixToNfa(postfix);
