@@ -12,7 +12,7 @@ typedef struct State {
 
 typedef struct Ptrlist {
   int size;
-  State **list;
+  State ***list;
 } Ptrlist;
 
 typedef struct Fragment {
@@ -23,22 +23,23 @@ typedef struct Fragment {
 Ptrlist *list1(State **outp) {
   Ptrlist *ptr = (Ptrlist *)malloc(sizeof(Ptrlist));
   ptr->size = 1;
-  ptr->list = outp;
+  ptr->list = (State ***)malloc(sizeof(State **));
+  ptr->list[0] = outp;
+
   return ptr;
 }
 
 Ptrlist *append(Ptrlist *l1, Ptrlist *l2) {
   int total = l1->size + l2->size;
   Ptrlist *ptr = (Ptrlist *)malloc(sizeof(Ptrlist));
-
-  State **list = (State **)malloc(sizeof(State *) * total);
+  State ***list = (State ***)malloc(sizeof(State **) * total);
 
   for (int i = 0; i < l1->size; i++) {
     list[i] = l1->list[i];
   }
 
-  for (int i = l1->size; i < l2->size; i++) {
-    list[i] = l2->list[i];
+  for (int i = 0; i < l2->size; i++) {
+    list[i + l1->size] = l2->list[i];
   }
 
   ptr->size = total;
@@ -49,65 +50,11 @@ Ptrlist *append(Ptrlist *l1, Ptrlist *l2) {
 
 void patch(Ptrlist *l, State *s) {
   for (int i = 0; i < l->size; i++) {
-
-    l->list[i] = s;
+    **(l->list + i) = s;
   }
   l->size = 0;
 }
 
-int precedence(char c) {
-  if (c == '*' || c == '+' || c == '?') {
-    return 2;
-  } else if (c == '.') {
-    return 1;
-  } else {
-    return 0;
-  }
-}
-// NOTE: Right associative operators have higher precedence
-int associativity(char c) {
-  if (c == '*' || c == '+' || c == '?') {
-    return 1;
-  }
-  return 0;
-}
-// Shunting Yard Algorithm by Edsger Djikstra
-// https://mathcenter.oxford.emory.edu/site/cs171/shuntingYardAlgorithm/
-char *infixToPostfix(char *infix) {
-  char *post = (char *)malloc(sizeof(char) * 1000), *postp;
-  postp = post;
-
-  char stack[1000], *stackp;
-  stackp = stack;
-  // Scan infix from left to right
-  for (char *t = infix; *t != '\0'; t++) {
-    if ((*t >= 'a' && *t <= 'z') || (*t >= 'A' && *t <= 'Z') ||
-        (*t >= '0' && *t <= '9')) {
-      *postp++ = *t;
-    } else if (*t == '(') {
-      *stackp++ = *t;
-    } else if (*t == ')') {
-      while (*--stackp != '(') {
-        *postp++ = *stackp;
-      }
-    } else {
-      char *top = stackp - sizeof(char);
-
-      while (stackp - stack >= 0 && precedence(*t) < precedence(*top) ||
-             precedence(*t) == precedence(*top) && associativity(*t) == 0) {
-        *postp++ = *top--;
-        stackp--;
-      }
-      *stackp++ = *t;
-    }
-  }
-
-  while (stackp - stack >= 0) {
-    *postp++ = *--stackp;
-  }
-  *postp++ = '\0';
-  return post;
-}
 State *createState(int p, State *o1, State *o2) {
   State *state = (State *)malloc(sizeof(State));
   state->c = p;
@@ -167,6 +114,60 @@ State *postfixToNfa(char *postfix) {
   e = *--stackp;
   patch(e.out, createState(MATCHSTATE, NULL, NULL));
   return e.start;
+}
+
+// Shunting Yard Algorithm by Edsger Djikstra
+// https://mathcenter.oxford.emory.edu/site/cs171/shuntingYardAlgorithm/
+int precedence(char c) {
+  if (c == '*' || c == '+' || c == '?') {
+    return 2;
+  } else if (c == '.') {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+// NOTE: Right associative operators have higher precedence
+int associativity(char c) {
+  if (c == '*' || c == '+' || c == '?') {
+    return 1;
+  }
+  return 0;
+}
+char *infixToPostfix(char *infix) {
+  char *post = (char *)malloc(sizeof(char) * 1000), *postp;
+  postp = post;
+
+  char stack[1000], *stackp;
+  stackp = stack;
+  // Scan infix from left to right
+  for (char *t = infix; *t != '\0'; t++) {
+    if ((*t >= 'a' && *t <= 'z') || (*t >= 'A' && *t <= 'Z') ||
+        (*t >= '0' && *t <= '9')) {
+      *postp++ = *t;
+    } else if (*t == '(') {
+      *stackp++ = *t;
+    } else if (*t == ')') {
+      while (*--stackp != '(') {
+        *postp++ = *stackp;
+      }
+    } else {
+      char *top = stackp - sizeof(char);
+
+      while (stackp - stack >= 0 && precedence(*t) < precedence(*top) ||
+             precedence(*t) == precedence(*top) && associativity(*t) == 0) {
+        *postp++ = *top--;
+        stackp--;
+      }
+      *stackp++ = *t;
+    }
+  }
+
+  while (stackp - stack >= 0) {
+    *postp++ = *--stackp;
+  }
+  *postp++ = '\0';
+  return post;
 }
 
 int main(int argc, char *argv[]) {
