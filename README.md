@@ -49,10 +49,6 @@ Given the regular expression `a.b|c*`, the engine will:
 2. Construct an NFA representing the expression.
 3. Simulate the NFA to determine if the input string matches the regular expression.
 
-## License
-
--
-
 ---
 
 For more detailed information, refer to the source code comments.
