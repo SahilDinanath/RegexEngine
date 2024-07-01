@@ -10,6 +10,11 @@ typedef struct State {
 
 } State;
 
+typedef struct Statelist {
+  State **set;
+  int n;
+} StateList;
+
 typedef struct Ptrlist {
   int size;
   State ***list;
@@ -19,6 +24,11 @@ typedef struct Fragment {
   State *start;
   Ptrlist *out;
 } Fragment;
+
+typedef struct List {
+  int size;
+  State **states;
+} List;
 
 Ptrlist *list1(State **outp) {
   Ptrlist *ptr = (Ptrlist *)malloc(sizeof(Ptrlist));
@@ -170,8 +180,72 @@ char *infixToPostfix(char *infix) {
   return post;
 }
 
+List l1;
+List l2;
+int listId = 0;
+
+void addState(List *l, State *s) {
+  if (s == NULL || s->last_state == listId) {
+    return;
+  }
+  if (s->c == SPLIT) {
+    // Follow unlabeled arrow.
+    addState(l, s->out1);
+    addState(l, s->out2);
+  }
+  l->states[l->size++] = s;
+}
+
+List *startList(State *s, List *l1) {
+  listId++;
+  l1->size = 0;
+  addState(l1, s);
+  return l1;
+}
+int isMatch(List *l) {
+  for (int i = 0; i < l->size; i++) {
+    if (l->states[i]->c == MATCHSTATE) {
+      return 1;
+    };
+  }
+  return 0;
+}
+void step(List *clist, int c, List *nlist) {
+  int i;
+  State *s;
+
+  listId++;
+  nlist->size = 0;
+  for (i = 0; i < clist->size; i++) {
+    s = clist->states[i];
+    if (s->c == c) {
+      addState(nlist, s->out1);
+    }
+  }
+}
+int match(State *start, char *s) {
+  List *clist, *nlist, *t;
+
+  clist = startList(start, &l1);
+
+  nlist = &l2;
+
+  for (; *s; s++) {
+    step(clist, *s, nlist);
+    t = clist;
+    clist = nlist;
+    nlist = clist;
+  }
+  return isMatch(clist);
+}
+
 int main(int argc, char *argv[]) {
+  State *arr1[1000];
+  l1.states = arr1;
+  State *arr2[1000];
+  l2.states = arr2;
+
   char *postfix = infixToPostfix("a.(b.b)?.a");
-  postfixToNfa(postfix);
+  State *start = postfixToNfa(postfix);
   return 0;
 }
