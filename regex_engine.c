@@ -1,3 +1,4 @@
+#include "regexengine.h"
 #include <stdio.h>
 #include <stdlib.h>
 #define SPLIT 256

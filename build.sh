@@ -2,4 +2,3 @@
 
 make clean
 make
-./main
