@@ -130,12 +130,13 @@ State *postfixToNfa(char *postfix) {
 // https://mathcenter.oxford.emory.edu/site/cs171/shuntingYardAlgorithm/
 int precedence(char c) {
   if (c == '*' || c == '+' || c == '?') {
-    return 2;
+    return 3;
   } else if (c == '.') {
+    return 2;
+  } else if (c == '|') {
     return 1;
-  } else {
-    return 0;
   }
+  return 0;
 }
 // NOTE: Right associative operators have higher precedence
 int associativity(char c) {
@@ -196,11 +197,11 @@ void addState(List *l, State *s) {
   l->states[l->size++] = s;
 }
 
-List *startList(State *s, List *l1) {
+List *startList(State *s, List *l) {
   listId++;
-  l1->size = 0;
-  addState(l1, s);
-  return l1;
+  l->size = 0;
+  addState(l, s);
+  return l;
 }
 int isMatch(List *l) {
   for (int i = 0; i < l->size; i++) {
@@ -208,15 +209,15 @@ int isMatch(List *l) {
       return 1;
     };
   }
+
   return 0;
 }
 void step(List *clist, int c, List *nlist) {
-  int i;
   State *s;
 
   listId++;
   nlist->size = 0;
-  for (i = 0; i < clist->size; i++) {
+  for (int i = 0; i < clist->size; i++) {
     s = clist->states[i];
     if (s->c == c) {
       addState(nlist, s->out1);
@@ -227,14 +228,14 @@ int match(State *start, char *s) {
   List *clist, *nlist, *t;
 
   clist = startList(start, &l1);
-
   nlist = &l2;
 
-  for (; *s; s++) {
+  for (; *s != '\0'; s++) {
     step(clist, *s, nlist);
+
     t = clist;
     clist = nlist;
-    nlist = clist;
+    nlist = t;
   }
   return isMatch(clist);
 }
@@ -244,8 +245,13 @@ int main(int argc, char *argv[]) {
   l1.states = arr1;
   State *arr2[1000];
   l2.states = arr2;
-
-  char *postfix = infixToPostfix("a.(b.b)?.a");
+  char *input = "aaa";
+  char *regex = "a.(b|a).a";
+  printf("input : aaa\n");
+  printf("regex : %s \n", regex);
+  char *postfix = infixToPostfix(regex);
   State *start = postfixToNfa(postfix);
+
+  printf("result : %d ", match(start, input));
   return 0;
 }
