@@ -30,6 +30,14 @@ typedef struct List {
   State **states;
 } List;
 
+State *arr1[1000];
+State *arr2[1000];
+List l1 = {.size = 0, .states = arr1};
+List l2 = {.size = 0, .states = arr2};
+int listId = 0;
+
+State *startOfNfa;
+
 Ptrlist *list1(State **outp) {
   Ptrlist *ptr = (Ptrlist *)malloc(sizeof(Ptrlist));
   ptr->size = 1;
@@ -181,10 +189,6 @@ char *infixToPostfix(char *infix) {
   return post;
 }
 
-List l1;
-List l2;
-int listId = 0;
-
 void addState(List *l, State *s) {
   if (s == NULL || s->last_state == listId) {
     return;
@@ -224,10 +228,10 @@ void step(List *clist, int c, List *nlist) {
     }
   }
 }
-int match(State *start, char *s) {
+int match(char *s) {
   List *clist, *nlist, *t;
 
-  clist = startList(start, &l1);
+  clist = startList(startOfNfa, &l1);
   nlist = &l2;
 
   for (; *s != '\0'; s++) {
@@ -240,18 +244,7 @@ int match(State *start, char *s) {
   return isMatch(clist);
 }
 
-int main(int argc, char *argv[]) {
-  State *arr1[1000];
-  l1.states = arr1;
-  State *arr2[1000];
-  l2.states = arr2;
-  char *input = "aaa";
-  char *regex = "a.(b|a).a";
-  printf("input : aaa\n");
-  printf("regex : %s \n", regex);
+void compileRegex(char *regex) {
   char *postfix = infixToPostfix(regex);
-  State *start = postfixToNfa(postfix);
-
-  printf("result : %d ", match(start, input));
-  return 0;
+  startOfNfa = postfixToNfa(postfix);
 }
