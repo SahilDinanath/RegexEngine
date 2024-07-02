@@ -64,6 +64,4 @@ For more detailed information, refer to the source code comments.
 
 ## Credit
 
-Implementation based on and inspired by Russ Cox in his article [ Regular Expression Matching Can Be Simple And Fast (but is slow in Java, Perl, PHP, Python, Ruby, ...)](https://swtch.com/~rsc/regexp/regexp1.html)
-
-Many Thanks.
+Implementation based on and inspired by Russ Cox in his article [ Regular Expression Matching Can Be Simple And Fast (but is slow in Java, Perl, PHP, Python, Ruby, ...)](https://swtch.com/~rsc/regexp/regexp1.html). Many Thanks.
