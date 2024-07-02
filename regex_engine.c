@@ -3,7 +3,13 @@
 #include <stdlib.h>
 #define SPLIT 256
 #define MATCHSTATE 257
+// Implementation based on: https://swtch.com/~rsc/regexp/regexp1.html
 
+/*
+ * symbol: type of State, 0 - 256 char character, SPLIT or MATCHSTATE
+ * out1, out2: pointers to next states
+ * last_state: prevents states being added multiple times during simulation
+ */
 typedef struct State {
   int symbol;
   struct State *out1;
@@ -12,25 +18,44 @@ typedef struct State {
 
 } State;
 
+// List of States in each step of NFA simulation
 typedef struct StateList {
   int size;
   State **states;
 } StateList;
 
+// List of Dangling pointers from State
 typedef struct PtrList {
   int size;
   State ***list;
 } PtrList;
 
+// Used to group together states and perform actions on them as a single object
 typedef struct Fragment {
   State *start;
   PtrList *out;
 } Fragment;
 
+State *createState(int p, State *o1, State *o2) {
+  State *state = (State *)malloc(sizeof(State));
+  state->symbol = p;
+  state->out1 = o1;
+  state->out2 = o2;
+  return state;
+}
+Fragment createFragment(State *s, PtrList *o) {
+  Fragment frag;
+  frag.start = s;
+  frag.out = o;
+  return frag;
+}
+
+// Global variables
 State *arr1[1000], *arr2[1000], *startOfNfa;
 StateList l1 = {.size = 0, .states = arr1}, l2 = {.size = 0, .states = arr2};
 int listId = 0;
 
+// creates initial pointer list
 PtrList *list1(State **outp) {
   PtrList *ptr = (PtrList *)malloc(sizeof(PtrList));
   ptr->size = 1;
@@ -59,6 +84,7 @@ PtrList *append(PtrList *l1, PtrList *l2) {
   return ptr;
 }
 
+// Assigns all dangling pointers in pointer list to a given state
 void patch(PtrList *l, State *s) {
   for (int i = 0; i < l->size; i++) {
     **(l->list + i) = s;
@@ -66,19 +92,7 @@ void patch(PtrList *l, State *s) {
   l->size = 0;
 }
 
-State *createState(int p, State *o1, State *o2) {
-  State *state = (State *)malloc(sizeof(State));
-  state->symbol = p;
-  state->out1 = o1;
-  state->out2 = o2;
-  return state;
-}
-Fragment createFragment(State *s, PtrList *o) {
-  Fragment frag;
-  frag.start = s;
-  frag.out = o;
-  return frag;
-}
+// Refer to
 State *postfixToNfa(char *postfix) {
   char *p;
   Fragment stack[1000], *stackp, e, e1, e2;
@@ -182,6 +196,7 @@ char *infixToPostfix(char *infix) {
   return post;
 }
 
+// Adds states to next list (nlist)
 void addState(StateList *l, State *s) {
   if (s == NULL || s->last_state == listId) {
     return;
@@ -194,21 +209,24 @@ void addState(StateList *l, State *s) {
   l->states[l->size++] = s;
 }
 
+// Adds first state to list
 StateList *startList(State *s, StateList *l) {
   listId++;
   l->size = 0;
   addState(l, s);
   return l;
 }
+
 int isMatch(StateList *l) {
   for (int i = 0; i < l->size; i++) {
     if (l->states[i]->symbol == MATCHSTATE) {
       return 1;
     };
   }
-
   return 0;
 }
+
+// Takes a step for all paths
 void step(StateList *clist, int c, StateList *nlist) {
   State *s;
 
@@ -221,6 +239,7 @@ void step(StateList *clist, int c, StateList *nlist) {
     }
   }
 }
+
 int match(char *s) {
   StateList *clist, *nlist, *t;
 
