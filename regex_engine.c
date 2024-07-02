@@ -3,44 +3,40 @@
 #include <stdlib.h>
 #define SPLIT 256
 #define MATCHSTATE 257
+
 typedef struct State {
-  int c;
+  int symbol;
   struct State *out1;
   struct State *out2;
   int last_state;
 
 } State;
 
-typedef struct Statelist {
-  State **set;
-  int n;
+typedef struct StateList {
+  int size;
+  State **states;
 } StateList;
 
-typedef struct Ptrlist {
+typedef struct PtrList {
   int size;
   State ***list;
-} Ptrlist;
+} PtrList;
 
 typedef struct Fragment {
   State *start;
-  Ptrlist *out;
+  PtrList *out;
 } Fragment;
-
-typedef struct List {
-  int size;
-  State **states;
-} List;
 
 State *arr1[1000];
 State *arr2[1000];
-List l1 = {.size = 0, .states = arr1};
-List l2 = {.size = 0, .states = arr2};
+StateList l1 = {.size = 0, .states = arr1};
+StateList l2 = {.size = 0, .states = arr2};
 int listId = 0;
 
 State *startOfNfa;
 
-Ptrlist *list1(State **outp) {
-  Ptrlist *ptr = (Ptrlist *)malloc(sizeof(Ptrlist));
+PtrList *list1(State **outp) {
+  PtrList *ptr = (PtrList *)malloc(sizeof(PtrList));
   ptr->size = 1;
   ptr->list = (State ***)malloc(sizeof(State **));
   ptr->list[0] = outp;
@@ -48,9 +44,9 @@ Ptrlist *list1(State **outp) {
   return ptr;
 }
 
-Ptrlist *append(Ptrlist *l1, Ptrlist *l2) {
+PtrList *append(PtrList *l1, PtrList *l2) {
   int total = l1->size + l2->size;
-  Ptrlist *ptr = (Ptrlist *)malloc(sizeof(Ptrlist));
+  PtrList *ptr = (PtrList *)malloc(sizeof(PtrList));
   State ***list = (State ***)malloc(sizeof(State **) * total);
 
   for (int i = 0; i < l1->size; i++) {
@@ -67,7 +63,7 @@ Ptrlist *append(Ptrlist *l1, Ptrlist *l2) {
   return ptr;
 }
 
-void patch(Ptrlist *l, State *s) {
+void patch(PtrList *l, State *s) {
   for (int i = 0; i < l->size; i++) {
     **(l->list + i) = s;
   }
@@ -76,12 +72,12 @@ void patch(Ptrlist *l, State *s) {
 
 State *createState(int p, State *o1, State *o2) {
   State *state = (State *)malloc(sizeof(State));
-  state->c = p;
+  state->symbol = p;
   state->out1 = o1;
   state->out2 = o2;
   return state;
 }
-Fragment createFragment(State *s, Ptrlist *o) {
+Fragment createFragment(State *s, PtrList *o) {
   Fragment frag;
   frag.start = s;
   frag.out = o;
@@ -190,11 +186,11 @@ char *infixToPostfix(char *infix) {
   return post;
 }
 
-void addState(List *l, State *s) {
+void addState(StateList *l, State *s) {
   if (s == NULL || s->last_state == listId) {
     return;
   }
-  if (s->c == SPLIT) {
+  if (s->symbol == SPLIT) {
     // Follow unlabeled arrow.
     addState(l, s->out1);
     addState(l, s->out2);
@@ -202,35 +198,35 @@ void addState(List *l, State *s) {
   l->states[l->size++] = s;
 }
 
-List *startList(State *s, List *l) {
+StateList *startList(State *s, StateList *l) {
   listId++;
   l->size = 0;
   addState(l, s);
   return l;
 }
-int isMatch(List *l) {
+int isMatch(StateList *l) {
   for (int i = 0; i < l->size; i++) {
-    if (l->states[i]->c == MATCHSTATE) {
+    if (l->states[i]->symbol == MATCHSTATE) {
       return 1;
     };
   }
 
   return 0;
 }
-void step(List *clist, int c, List *nlist) {
+void step(StateList *clist, int c, StateList *nlist) {
   State *s;
 
   listId++;
   nlist->size = 0;
   for (int i = 0; i < clist->size; i++) {
     s = clist->states[i];
-    if (s->c == c) {
+    if (s->symbol == c) {
       addState(nlist, s->out1);
     }
   }
 }
 int match(char *s) {
-  List *clist, *nlist, *t;
+  StateList *clist, *nlist, *t;
 
   clist = startList(startOfNfa, &l1);
   nlist = &l2;
