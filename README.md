@@ -35,8 +35,18 @@ make
 
 To use the regex engine, run the compiled binary with a regular expression and a string to match:
 
-```sh
-./main "a.b|c*" "ab"
+1. Import header file
+2. Compile Regex expression
+3. Match will return 0 or 1 when given a String
+
+Example usage:
+```c
+#include "RegexEngine/regex_engine.h"
+
+int main(int argc, char** argv){
+   compile("a.b|c*");
+   printf("output: %d", match("ab");
+}
 ```
 
 This command will output whether the string matches the regular expression.
