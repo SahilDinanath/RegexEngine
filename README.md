@@ -39,7 +39,14 @@ To use the regex engine, run the compiled binary with a regular expression and a
 2. Compile Regex expression
 3. Match will return 0 or 1 when given a String
 
-Example usage:
+### Example
+
+Given the regular expression `a.b|c*`, the engine will:
+
+1. Convert the infix expression to postfix notation.
+2. Construct an NFA representing the expression.
+3. Simulate the NFA to determine if the input string matches the regular expression.
+
 ```c
 #include "RegexEngine/regex_engine.h"
 
@@ -51,14 +58,12 @@ int main(int argc, char** argv){
 
 This command will output whether the string matches the regular expression.
 
-## Example
-
-Given the regular expression `a.b|c*`, the engine will:
-
-1. Convert the infix expression to postfix notation.
-2. Construct an NFA representing the expression.
-3. Simulate the NFA to determine if the input string matches the regular expression.
-
 ---
 
 For more detailed information, refer to the source code comments.
+
+## Credit
+
+Implementation based on and inspired by Russ Cox in his article [ Regular Expression Matching Can Be Simple And Fast (but is slow in Java, Perl, PHP, Python, Ruby, ...)](https://swtch.com/~rsc/regexp/regexp1.html)
+
+Many Thanks.
