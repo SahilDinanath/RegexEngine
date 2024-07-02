@@ -6,7 +6,7 @@
 // Implementation based on: https://swtch.com/~rsc/regexp/regexp1.html
 
 /*
- * symbol: type of State, 0 - 256 char character, SPLIT or MATCHSTATE
+ * symbol: type of State, 0 - 255 char character, SPLIT or MATCHSTATE
  * out1, out2: pointers to next states
  * last_state: prevents states being added multiple times during simulation
  */
