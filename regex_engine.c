@@ -27,13 +27,9 @@ typedef struct Fragment {
   PtrList *out;
 } Fragment;
 
-State *arr1[1000];
-State *arr2[1000];
-StateList l1 = {.size = 0, .states = arr1};
-StateList l2 = {.size = 0, .states = arr2};
+State *arr1[1000], *arr2[1000], *startOfNfa;
+StateList l1 = {.size = 0, .states = arr1}, l2 = {.size = 0, .states = arr2};
 int listId = 0;
-
-State *startOfNfa;
 
 PtrList *list1(State **outp) {
   PtrList *ptr = (PtrList *)malloc(sizeof(PtrList));
