@@ -180,8 +180,8 @@ char *infixToPostfix(char *infix) {
     } else {
       char *top = stackp - sizeof(char);
 
-      while (stackp - stack >= 0 && precedence(*t) < precedence(*top) ||
-             precedence(*t) == precedence(*top) && associativity(*t) == 0) {
+      while ((stackp - stack >= 0 && precedence(*t) < precedence(*top)) ||
+             (precedence(*t) == precedence(*top) && associativity(*t) == 0)) {
         *postp++ = *top--;
         stackp--;
       }

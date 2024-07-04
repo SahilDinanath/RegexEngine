@@ -1,7 +1,16 @@
+CODEDIRS=.
+INCDIRS=.
 
+OPT=-O0
+CC= gcc
+CFLAGS=-Wall -Wextra -g $(foreach D,$(INCDIRS), -I$(D)) 
 
-all: regex_engine.c
-	gcc -c regex_engine.c -o regex_engine.o
+CFILES=$(foreach D, $(CODEDIRS), $(wildcard $(D)/*.c))
+OBJECTS=$(patsubst %.c, %.o, $(CFILES))
 
+all: $(OBJECTS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 clean:
-	rm regex_engine.o
+	rm -rf $(OBJECTS) $(BIN)
