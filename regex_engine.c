@@ -271,7 +271,8 @@ char *preprocessPostfix(char *regex) {
     char cur2 = *(regex + 1);
 
     t[position++] = cur1;
-    if ((isAlphaNumeric(cur1) || cur1 == ')') &&
+    if ((isAlphaNumeric(cur1) || cur1 == ')' || cur1 == '+' || cur1 == '*' ||
+         cur1 == '?') &&
         (isAlphaNumeric(cur2) || cur2 == '(')) {
 
       t[position++] = '&';
