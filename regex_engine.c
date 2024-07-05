@@ -282,6 +282,7 @@ char *preprocessPostfix(char *regex) {
   return t;
 }
 void compileRegex(char *regex) {
-  char *postfix = infixToPostfix(regex);
+  char *preprocessed = preprocessPostfix(regex);
+  char *postfix = infixToPostfix(preprocessed);
   startOfNfa = postfixToNfa(postfix);
 }
