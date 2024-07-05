@@ -1,6 +1,7 @@
 #include "regex_engine.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #define SPLIT 256
 #define MATCHSTATE 257
 // Implementation based on: https://swtch.com/~rsc/regexp/regexp1.html
@@ -143,6 +144,13 @@ State *postfixToNfa(char *postfix) {
 
 // Shunting Yard Algorithm by Edsger Djikstra
 // https://mathcenter.oxford.emory.edu/site/cs171/shuntingYardAlgorithm/
+int isAlphaNumeric(char t) {
+  if ((t >= 'a' && t <= 'z') || (t >= 'A' && t <= 'Z') ||
+      (t >= '0' && t <= '9')) {
+    return 1;
+  }
+  return 0;
+}
 int precedence(char c) {
   if (c == '*' || c == '+' || c == '?') {
     return 3;
@@ -168,8 +176,7 @@ char *infixToPostfix(char *infix) {
   stackp = stack;
   // Scan infix from left to right
   for (char *t = infix; *t != '\0'; t++) {
-    if ((*t >= 'a' && *t <= 'z') || (*t >= 'A' && *t <= 'Z') ||
-        (*t >= '0' && *t <= '9')) {
+    if (isAlphaNumeric(*t)) {
       *postp++ = *t;
     } else if (*t == '(') {
       *stackp++ = *t;
@@ -256,6 +263,24 @@ int match(char *s) {
   return isMatch(clist);
 }
 
+char *preprocessPostfix(char *regex) {
+  char *t = (char *)malloc(sizeof(char) * strlen(regex));
+  int position = 0;
+  for (; *(regex + 1) != '\0'; regex++) {
+    char cur1 = *regex;
+    char cur2 = *(regex + 1);
+
+    t[position++] = cur1;
+    if ((isAlphaNumeric(cur1) || cur1 == ')') &&
+        (isAlphaNumeric(cur2) || cur2 == '(')) {
+
+      t[position++] = '.';
+    }
+  }
+  t[position++] = *regex;
+  t[position++] = '\0';
+  return t;
+}
 void compileRegex(char *regex) {
   char *postfix = infixToPostfix(regex);
   startOfNfa = postfixToNfa(postfix);
