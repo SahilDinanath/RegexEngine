@@ -106,7 +106,7 @@ State *postfixToNfa(char *postfix) {
       state = createState(*p, NULL, NULL);
       *stackp++ = createFragment(state, list1(&state->out1));
       break;
-    case '.':
+    case '&':
       e2 = *--stackp;
       e1 = *--stackp;
       patch(e1.out, e2.start);
@@ -146,7 +146,7 @@ State *postfixToNfa(char *postfix) {
 // https://mathcenter.oxford.emory.edu/site/cs171/shuntingYardAlgorithm/
 int isAlphaNumeric(char t) {
   if ((t >= 'a' && t <= 'z') || (t >= 'A' && t <= 'Z') ||
-      (t >= '0' && t <= '9')) {
+      (t >= '0' && t <= '9') || (t == '.')) {
     return 1;
   }
   return 0;
@@ -154,7 +154,7 @@ int isAlphaNumeric(char t) {
 int precedence(char c) {
   if (c == '*' || c == '+' || c == '?') {
     return 3;
-  } else if (c == '.') {
+  } else if (c == '&') {
     return 2;
   } else if (c == '|') {
     return 1;
@@ -241,7 +241,7 @@ void step(StateList *clist, int c, StateList *nlist) {
   nlist->size = 0;
   for (int i = 0; i < clist->size; i++) {
     s = clist->states[i];
-    if (s->symbol == c) {
+    if (s->symbol == c || s->symbol == '.') {
       addState(nlist, s->out1);
     }
   }
@@ -274,7 +274,7 @@ char *preprocessPostfix(char *regex) {
     if ((isAlphaNumeric(cur1) || cur1 == ')') &&
         (isAlphaNumeric(cur2) || cur2 == '(')) {
 
-      t[position++] = '.';
+      t[position++] = '&';
     }
   }
   t[position++] = *regex;
