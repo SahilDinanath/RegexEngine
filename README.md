@@ -15,7 +15,7 @@ This project is a custom regular expression (regex) engine written in C, impleme
 
 ## Supported Syntax
 
-- `.` : Concatenation of expressions
+- `AB` : Automatic concatination of expressions
 - `*` : Matches zero or more occurrences of the preceding element
 - `?` : Matches zero or one occurrence of the preceding element
 - `+` : Matches one or more occurrences of the preceding element
@@ -41,7 +41,7 @@ To use the regex engine, run the compiled binary with a regular expression and a
 
 ### Example
 
-Given the regular expression `a.b|c*`, the engine will:
+Given the regular expression `ab|c*`, the engine will:
 
 1. Convert the infix expression to postfix notation.
 2. Construct an NFA representing the expression.
@@ -51,7 +51,7 @@ Given the regular expression `a.b|c*`, the engine will:
 #include "RegexEngine/regex_engine.h"
 
 int main(int argc, char** argv){
-   compile("a.b|c*");
+   compileRegex("ab|c*");
    printf("output: %d", match("ab");
 }
 ```
