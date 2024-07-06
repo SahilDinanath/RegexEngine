@@ -38,7 +38,7 @@ typedef struct Fragment {
 } Fragment;
 
 State *createState(int p, State *o1, State *o2) {
-  State *state = (State *)malloc(sizeof(State));
+  State *state = malloc(sizeof(State));
   state->symbol = p;
   state->out1 = o1;
   state->out2 = o2;
@@ -58,9 +58,9 @@ int listId = 0;
 
 // creates initial pointer list
 PtrList *list1(State **outp) {
-  PtrList *ptr = (PtrList *)malloc(sizeof(PtrList));
+  PtrList *ptr = malloc(sizeof(PtrList));
   ptr->size = 1;
-  ptr->list = (State ***)malloc(sizeof(State **));
+  ptr->list = malloc(sizeof(State **));
   ptr->list[0] = outp;
 
   return ptr;
@@ -68,8 +68,8 @@ PtrList *list1(State **outp) {
 
 PtrList *append(PtrList *l1, PtrList *l2) {
   int total = l1->size + l2->size;
-  PtrList *ptr = (PtrList *)malloc(sizeof(PtrList));
-  State ***list = (State ***)malloc(sizeof(State **) * total);
+  PtrList *ptr = malloc(sizeof(PtrList));
+  State ***list = malloc(sizeof(State **) * total);
 
   for (int i = 0; i < l1->size; i++) {
     list[i] = l1->list[i];
@@ -169,7 +169,7 @@ int associativity(char c) {
   return 0;
 }
 char *infixToPostfix(char *infix) {
-  char *post = (char *)malloc(sizeof(char) * 1000), *postp;
+  char *post = malloc(sizeof(char) * 1000), *postp;
   postp = post;
 
   char stack[1000], *stackp;
@@ -264,7 +264,7 @@ int match(char *s) {
 }
 
 char *preprocessPostfix(char *regex) {
-  char *t = (char *)malloc(sizeof(char) * strlen(regex));
+  char *t = malloc(sizeof(char) * strlen(regex));
   int position = 0;
   for (; *(regex + 1) != '\0'; regex++) {
     char cur1 = *regex;
