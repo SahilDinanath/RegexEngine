@@ -14,7 +14,7 @@ This project is a custom regular expression (regex) engine written in C, impleme
    - Employs the multiple-state simulation technique also outlined in Thompson's 1968 paper. This method enables the engine to achieve linear runtime performance by simultaneously tracking multiple states during the matching process.
 
 ## Supported Syntax
-
+- `.` : Matches any character
 - `AB` : Automatic concatination of expressions
 - `*` : Matches zero or more occurrences of the preceding element
 - `?` : Matches zero or one occurrence of the preceding element
