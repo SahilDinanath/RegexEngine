@@ -1,5 +1,8 @@
 # Custom Regex Engine
+Example Shrep'ing a source file:
 [Example Shrep'ing a source file](https://github.com/SahilDinanath/RegexEngine/assets/46680594/3b01da92-25b3-448a-a8f2-80cfa5873395)
+Example Shrep'ing Dracula.txt:
+[Screencast from 2024-07-06 13-38-40.webm](https://github.com/SahilDinanath/RegexEngine/assets/46680594/149f6cb7-b21e-4f3e-a32c-6181f07b778b)
 
 This project is a custom regular expression (regex) engine written in C, implementing several key algorithms to efficiently process and match regular expressions. The engine supports the most fundamental set of regex operations and syntax.
 
